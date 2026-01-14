@@ -9,6 +9,7 @@ body{
     justify-content:center;
     align-items:center;
     height:100vh;
+    font-size:1.2rem; /* taille de base augmentée */
 }
 
 /* CONTAINER CENTRAL */
@@ -18,10 +19,20 @@ body{
     text-align:center;
 }
 
+/* TITRES */
+h1{
+    font-size:2.5rem; /* augmenté */
+    margin-bottom:20px;
+}
+h2{
+    font-size:2rem; /* augmenté */
+    margin-bottom:15px;
+}
+
 /* INPUTS, BUTTONS, TEXTAREA */
 input, button, textarea{
     font-family:'Orbitron', sans-serif;
-    font-size:1.3rem; /* plus grand pour lecture facile */
+    font-size:1.5rem; /* augmenté pour meilleure visibilité */
     padding:12px;
     margin:10px 0;
     border-radius:10px;
@@ -47,7 +58,8 @@ button:hover{
     padding:25px;
     margin:20px 0;
     border-radius:15px;
-    font-size:1.2rem;
+    font-size:1.4rem; /* augmenté */
+}
 }
 
 /* FEEDBACK */
