@@ -23,8 +23,8 @@ window.onload = () => {
     // Mémo : tableau global pour stocker les scores de tous les employés
     let leaderboard = [];
 
-    // Mémo : ici je stocke les réponses cochées pour UNE question
-    let selectedAnswers = [];
+    // Points par question (difficulté croissante)
+    const questionPoints = [1, 1, 1, 2, 2, 2, 3, 3, 3, 3];
 
     // Timer
     let timer;
@@ -304,7 +304,7 @@ window.onload = () => {
         const q = questions[currentQuestionIndex];
 
         const title = document.createElement("h2");
-        title.textContent = q.question;
+        title.textContent = `Question ${currentQuestionIndex + 1} : ${q.question}`;
         questionContainer.appendChild(title);
 
         q.options.forEach(option => {
@@ -356,9 +356,9 @@ window.onload = () => {
         feedback.className = "feedback";
 
         if (isCorrect) {
-            score++;
+            score += questionPoints[currentQuestionIndex];
             playApplause();
-            feedback.innerHTML = `✅ Bien joué<br><strong>${q.answers.join(", ")}</strong><br>${q.explanation}`;
+            feedback.innerHTML = `✅ Bien joué (+${questionPoints[currentQuestionIndex]} point${questionPoints[currentQuestionIndex] > 1 ? 's' : ''})<br><strong>${q.answers.join(", ")}</strong><br>${q.explanation}`;
         } else {
             feedback.innerHTML = `❌ Pas tout à fait<br><strong>${q.answers.join(", ")}</strong><br>${q.explanation}`;
         }
@@ -412,8 +412,8 @@ window.onload = () => {
             leaderboardBody.appendChild(row);
         });
 
-        // Lancer confettis si le score est supérieur ou égal à 7 (plus que la moyenne)
-        if (score >= 7) {
+        // Lancer confettis si le score est supérieur ou égal à 12 (plus que la moyenne)
+        if (score >= 12) {
             launchConfetti();
         }
     }

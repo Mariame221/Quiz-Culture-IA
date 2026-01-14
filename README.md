@@ -5,12 +5,13 @@ Bienvenue dans le Quiz Culture IA INSERSITE! Ce quiz teste vos connaissances sur
 ## Comment jouer
 1. Ouvrez `index.html` dans votre navigateur web.
 2. Entrez votre nom et prénom.
-3. Répondez aux 10 questions en **15 secondes maximum** par question (le timer compte à rebours et devient rouge à 7 secondes restantes).
-4. Validez chaque réponse pour voir l'explication.
-5. À la fin, consultez votre score et le classement.
-6. **Récompenses** :
+3. Répondez aux 10 questions numérotées en **15 secondes maximum** par question (le timer compte à rebours et devient rouge à 7 secondes restantes).
+4. Validez chaque réponse pour voir l'explication et les points gagnés.
+5. À la fin, consultez votre score total et le classement.
+6. **Scoring** : Questions faciles = 1 point, intermédiaires = 2 points, avancées = 3 points (score max : 18/18).
+7. **Récompenses** :
    - Applaudissements à chaque bonne réponse (ajoutez un fichier `applause.mp3` pour le son).
-   - Confettis si votre score est ≥ 7/10.
+   - Confettis si votre score est ≥ 12/18 (plus que la moyenne).
 
 ## Les questions et réponses
 
