@@ -1,74 +1,37 @@
 /****************************************************
- * QUIZ IA – SCRIPT PRINCIPAL
- * Mémo pour moi :
- * - Tout est centralisé ici
- * - Si un bouton ne marche pas → vérifier les ID HTML
+ * QUIZ IA – 20 QUESTIONS – USAGE AU TRAVAIL
+ * Notation : 20 points maximum
  ****************************************************/
 
 window.onload = () => {
-    console.log("[INFO] Script chargé");
-
-    /* ==================================================
-       VARIABLES PRINCIPALES
-       Mémo :
-       - username = nom de l’employé
-       - score = nombre de bonnes réponses
-       - currentQuestionIndex = position dans le quiz
-    ================================================== */
+    console.log("[INFO] Script chargé - 20 questions");
 
     let username = "";
     let score = 0;
     let currentQuestionIndex = 0;
-
-    // Mémo : tableau global pour stocker les scores de tous les employés
-    let leaderboard = [];
-
-    // Points par question (difficulté croissante)
-    const questionPoints = [1, 1, 1, 2, 2, 2, 3, 3, 3, 3];
-
-    // Timer
+    let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
+    let selectedAnswers = [];
+    const questionPoints = [0.5, 0.5, 1, 0, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 0, 0];
     let timer;
     let timeLeft = 15;
-
-    /* ==================================================
-       RÉCUPÉRATION DES ÉLÉMENTS HTML
-       Mémo :
-       - si rien ne s’affiche → vérifier que les ID existent dans le HTML
-    ================================================== */
 
     const loginPage = document.getElementById("loginPage");
     const quizPage = document.getElementById("quizPage");
     const dashboardPage = document.getElementById("dashboardPage");
-
     const startBtn = document.getElementById("startBtn");
     const backHomeBtn = document.getElementById("backHomeBtn");
-
+    const resetBtn = document.getElementById("resetBtn");
     const questionContainer = document.getElementById("questionContainer");
     const scoreDisplay = document.getElementById("scoreDisplay");
     const leaderboardBody = document.getElementById("leaderboardBody");
 
-    /* ==================================================
-       AUDIO – APPLAUDISSEMENTS AVEC FICHIER AUDIO
-       Mémo :
-       - utilise un fichier audio externe pour un vrai son d'applaudissements
-       - téléchargez un fichier applause.mp3 gratuit et placez-le dans le dossier
-    ================================================== */
-
     function playApplause() {
         const audio = document.getElementById("applauseAudio");
         if (audio) {
-            audio.currentTime = 0; // Remettre au début
+            audio.currentTime = 0;
             audio.play().catch(e => console.log("Erreur audio:", e));
         }
     }
-
-    /* ==================================================
-       TIMER
-       Mémo :
-       - 15 secondes par question
-       - change de couleur en rouge à 7 secondes
-       - passe automatiquement à la suivante si temps écoulé
-    ================================================== */
 
     function startTimer() {
         timeLeft = 15;
@@ -78,7 +41,6 @@ window.onload = () => {
             updateTimerDisplay();
             if (timeLeft <= 0) {
                 clearInterval(timer);
-                // Si temps écoulé, considérer comme mauvaise réponse et passer à la suivante
                 nextQuestion();
             }
         }, 1000);
@@ -100,26 +62,16 @@ window.onload = () => {
         }
     }
 
-    /* ==================================================
-       CONFETTIS
-       Mémo :
-       - uniquement visuel
-       - déclenché pour les meilleurs scores
-    ================================================== */
-
     const confettiCanvas = document.createElement("canvas");
     confettiCanvas.id = "confettiCanvas";
     document.body.appendChild(confettiCanvas);
-
     const ctx = confettiCanvas.getContext("2d");
     confettiCanvas.width = window.innerWidth;
     confettiCanvas.height = window.innerHeight;
-
     let confettis = [];
 
     function launchConfetti() {
         confettis = [];
-
         for (let i = 0; i < 120; i++) {
             confettis.push({
                 x: Math.random() * confettiCanvas.width,
@@ -128,13 +80,11 @@ window.onload = () => {
                 d: Math.random() * 5 + 2
             });
         }
-
         animateConfetti();
     }
 
     function animateConfetti() {
         ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
-
         confettis.forEach(c => {
             ctx.beginPath();
             ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2);
@@ -142,179 +92,60 @@ window.onload = () => {
             ctx.fill();
             c.y += c.d;
         });
-
         if (confettis.some(c => c.y < confettiCanvas.height)) {
             requestAnimationFrame(animateConfetti);
         }
     }
 
-    /* ==================================================
-       QUESTIONS DU QUIZ
-       Mémo :
-       - answers = réponses exactes
-       - explanation = affichée après validation (pédagogique)
-    ================================================== */
-
     const questions = [
-        {
-            question: "L’IA est principalement utilisée pour :",
-            options: [
-                "Remplacer totalement l’humain",
-                "Assister et améliorer le travail humain",
-                "Fonctionner sans données"
-            ],
-            answers: ["Assister et améliorer le travail humain"],
-            explanation: "L’IA est un outil d’assistance, pas un remplaçant total."
-        },
-        {
-            question: "Quels usages sont adaptés à l’IA en entreprise ?",
-            options: [
-                "Automatiser des tâches répétitives",
-                "Prendre des décisions juridiques seules",
-                "Aider à l’analyse de données"
-            ],
-            answers: [
-                "Automatiser des tâches répétitives",
-                "Aider à l’analyse de données"
-            ],
-            explanation: "L’IA aide, mais la décision finale reste humaine."
-        },
-        {
-            question: "Quelle est une limite importante de l’IA actuelle ?",
-            options: [
-                "Elle peut penser comme un humain",
-                "Elle nécessite des données de qualité",
-                "Elle fonctionne sans électricité"
-            ],
-            answers: ["Elle nécessite des données de qualité"],
-            explanation: "L’IA dépend de la qualité des données pour fonctionner correctement."
-        },
-        {
-            question: "Qu'est-ce que le Machine Learning ?",
-            options: [
-                "Un type d'ordinateur",
-                "Une méthode où les machines apprennent des données",
-                "Un langage de programmation"
-            ],
-            answers: ["Une méthode où les machines apprennent des données"],
-            explanation: "Le Machine Learning permet aux algorithmes d'apprendre et de s'améliorer à partir de données."
-        },
-        {
-            question: "Quelle est la différence entre IA faible et IA forte ?",
-            options: [
-                "L'IA faible est plus intelligente",
-                "L'IA faible est spécialisée, l'IA forte est générale",
-                "L'IA forte est plus lente"
-            ],
-            answers: ["L'IA faible est spécialisée, l'IA forte est générale"],
-            explanation: "L'IA faible (comme Siri) est bonne dans un domaine, l'IA forte pourrait penser comme un humain."
-        },
-        {
-            question: "Quels sont des exemples d'IA en entreprise ?",
-            options: [
-                "Chatbots pour le service client",
-                "Jeux vidéo",
-                "Analyse prédictive des ventes"
-            ],
-            answers: [
-                "Chatbots pour le service client",
-                "Analyse prédictive des ventes"
-            ],
-            explanation: "L'IA aide à automatiser et analyser dans un contexte professionnel."
-        },
-        {
-            question: "Qu'est-ce que le Deep Learning ?",
-            options: [
-                "Un réseau neuronal profond",
-                "Un type de base de données",
-                "Un logiciel de bureautique"
-            ],
-            answers: ["Un réseau neuronal profond"],
-            explanation: "Le Deep Learning utilise des réseaux de neurones pour traiter des données complexes."
-        },
-        {
-            question: "Quels sont des risques éthiques de l'IA ?",
-            options: [
-                "Perte d'emplois",
-                "Biais dans les décisions",
-                "Amélioration de la productivité"
-            ],
-            answers: [
-                "Perte d'emplois",
-                "Biais dans les décisions"
-            ],
-            explanation: "L'IA peut amplifier les biais existants et changer le marché du travail."
-        },
-        {
-            question: "Qu'est-ce que GPT ?",
-            options: [
-                "Un modèle de langage génératif",
-                "Un type de processeur",
-                "Un protocole internet"
-            ],
-            answers: ["Un modèle de langage génératif"],
-            explanation: "GPT est une IA capable de générer du texte, comme ChatGPT."
-        },
-        {
-            question: "Quel est l'avenir probable de l'IA selon les experts ?",
-            options: [
-                "L'IA remplacera tous les emplois",
-                "L'IA assistera les humains dans de nombreux domaines",
-                "L'IA disparaîtra"
-            ],
-            answers: ["L'IA assistera les humains dans de nombreux domaines"],
-            explanation: "L'IA est vue comme un outil complémentaire, pas un remplaçant total."
-        }
-        // 👉 tu peux en ajouter autant que tu veux ici
+        {question:"Q1-Un outil d'IA générative permet de :",options:["Produire du texte ou des images à partir d'une consigne","Stocker des documents papier","Remplacer le jugement humain"],answers:["Produire du texte ou des images à partir d'une consigne"],explanation:"L'IA générative crée du contenu à partir d'instructions."},
+        {question:"Q2-L'IA doit être considérée avant tout comme :",options:["Un remplaçant","Un assistant d'aide à la réflexion et à la production","Un outil de décision autonome"],answers:["Un assistant d'aide à la réflexion et à la production"],explanation:"L'IA assiste, mais la décision reste humaine."},
+        {question:"Q3-L'IA peut être utilisée en entreprise pour :",options:["Automatiser des tâches","Structurer des processus","Remplacer toute décision humaine","Aider à la prise de décision"],answers:["Automatiser des tâches","Structurer des processus","Aider à la prise de décision"],explanation:"L'IA soutient et optimise le travail."},
+        {question:"Q4 (ouverte)-Cite les usages professionnels que tu as de l'IA.",options:["(Réponse libre)"],answers:["(Réponse libre)"],explanation:"Question qualitative - pas notée."},
+        {question:"Q5-Quel est un risque réel lié à l'IA au travail ?",options:["Dépendance excessive","Amélioration de la productivité","Perte de temps","Meilleure structuration"],answers:["Dépendance excessive"],explanation:"La dépendance est un risque réel."},
+        {question:"Q6-Associe les outils à leurs usages :",options:["ChatGPT → Rédaction","Canva IA → Création visuelle","DeepL → Traduction","Notion AI → Organisation","DALL·E → Images"],answers:["ChatGPT → Rédaction","Canva IA → Création visuelle","DeepL → Traduction","Notion AI → Organisation","DALL·E → Images"],explanation:"Chaque outil a son périmètre."},
+        {question:"Q7-Exemples d'usages IA en entreprise ?",options:["Chatbots client","Jeux vidéo","Analyse prédictive","Création de contenu"],answers:["Chatbots client","Analyse prédictive","Création de contenu"],explanation:"Les usages professionnels incluent chatbots et analyse."},
+        {question:"Q8-L'IA peut produire des erreurs ou des biais.",options:["Vrai","Faux"],answers:["Vrai"],explanation:"L'IA génère des réponses probables, pas des vérités."},
+        {question:"Q9-Une réponse IA doit toujours être vérifiée.",options:["Vrai","Faux"],answers:["Vrai"],explanation:"La vérification humaine est indispensable."},
+        {question:"Q10-Comment vérifier la fiabilité d'un contenu IA ?",options:["Le recopier tel quel","Confronter à des sources fiables et relire","Faire confiance à l'outil","Le supprimer"],answers:["Confronter à des sources fiables et relire"],explanation:"Relecture et recoupement sont essentiels."},
+        {question:"Q11-Qui est responsable d'un contenu produit avec l'IA ?",options:["L'outil","Le collaborateur","Le manager","Personne"],answers:["Le collaborateur"],explanation:"Le collaborateur est responsable."},
+        {question:"Q12-Quelle info ne pas saisir dans une IA grand public ?",options:["Trame de mail","Procédure générique","Données sensibles (RH, finance)","Reformulation de texte"],answers:["Données sensibles (RH, finance)"],explanation:"Les données sensibles exposent à des risques."},
+        {question:"Q13-Un bon prompt est avant tout :",options:["Long","Technique","Clair, contextualisé et orienté objectif","Créatif"],answers:["Clair, contextualisé et orienté objectif"],explanation:"La clarté conditionne la qualité."},
+        {question:"Q14-Quel prompt est le plus efficace ?",options:["Fais-moi un mail","Rédige un texte","Aide-moi à structurer un mail pour un partenaire","Écris quelque chose"],answers:["Aide-moi à structurer un mail pour un partenaire"],explanation:"Ce prompt précise le contexte."},
+        {question:"Q15-Pour améliorer une réponse IA ?",options:["Répéter le même prompt","Ajouter des contraintes et reformuler","Changer d'outil","Poser une seule question"],answers:["Ajouter des contraintes et reformuler"],explanation:"L'itération améliore la qualité."},
+        {question:"Q16-Demandes à l'IA des idées. Meilleure posture ?",options:["Appliquer toutes les idées","Les analyser et adapter au contexte","Combiner pour gagner du temps","Ne pas les utiliser"],answers:["Les analyser et adapter au contexte"],explanation:"Adapter au contexte est essentiel."},
+        {question:"Q17-Dépendance problématique à l'IA ?",options:["Utiliser systématiquement pour gagner du temps","Structurer sa réflexion avant d'écrire","Être incapable de produire sans l'IA","Préférer l'IA à ses formulations"],answers:["Être incapable de produire sans l'IA"],explanation:"La perte d'autonomie est un risque."},
+        {question:"Q18-Utilisation productive de l'IA ?",options:["Produire plus vite sans relecture","Automatiser toutes les tâches","Gagner du temps avec qualité et contrôle humain","Utiliser quand on ne sait pas"],answers:["Gagner du temps avec qualité et contrôle humain"],explanation:"L'équilibre est la clé."},
+        {question:"Q19 (ouverte)-Comment encadres-tu l'IA dans ton équipe ?",options:["(Réponse libre)"],answers:["(Réponse libre)"],explanation:"Question qualitative - pas notée."},
+        {question:"Q20 (ouverte)-Comment l'IA t'aide dans tes fonctions ?",options:["(Réponse libre)"],answers:["(Réponse libre)"],explanation:"Question qualitative - pas notée."}
     ];
-
-    /* ==================================================
-       DÉMARRER LE QUIZ
-       Mémo :
-       - déclenché au clic sur “Commencer”
-    ================================================== */
 
     startBtn.onclick = () => {
         username = document.getElementById("username").value.trim();
-
         if (!username) {
-            alert("Merci d’entrer ton nom");
+            alert("Merci d'entrer ton nom");
             return;
         }
-
         loginPage.style.display = "none";
         quizPage.style.display = "block";
-
         score = 0;
         currentQuestionIndex = 0;
-
         showQuestion();
     };
-
-    /* ==================================================
-       AFFICHER UNE QUESTION
-       Mémo :
-       - on réinitialise selectedAnswers à chaque question
-    ================================================== */
 
     function showQuestion() {
         questionContainer.innerHTML = "";
         selectedAnswers = [];
-
         const q = questions[currentQuestionIndex];
-
         const title = document.createElement("h2");
-        title.textContent = `Question ${currentQuestionIndex + 1} : ${q.question}`;
+        title.textContent = `${q.question}`;
         questionContainer.appendChild(title);
-
         q.options.forEach(option => {
             const label = document.createElement("label");
             label.style.display = "block";
-
             const checkbox = document.createElement("input");
             checkbox.type = "checkbox";
             checkbox.value = option;
-
             checkbox.onchange = () => {
                 if (checkbox.checked) {
                     selectedAnswers.push(option);
@@ -322,65 +153,41 @@ window.onload = () => {
                     selectedAnswers = selectedAnswers.filter(a => a !== option);
                 }
             };
-
             label.appendChild(checkbox);
             label.append(" " + option);
             questionContainer.appendChild(label);
         });
-
         const validateBtn = document.createElement("button");
         validateBtn.textContent = "Valider";
         validateBtn.onclick = validateAnswer;
         questionContainer.appendChild(validateBtn);
-
-        // Démarrer le timer
         startTimer();
     }
 
-    /* ==================================================
-       VALIDER LA RÉPONSE
-       Mémo :
-       - on compare EXACTEMENT les réponses attendues
-    ================================================== */
-
     function validateAnswer() {
-        stopTimer(); // Arrêter le timer
-
+        stopTimer();
         const q = questions[currentQuestionIndex];
-
-        const isCorrect =
-            selectedAnswers.length === q.answers.length &&
-            selectedAnswers.every(a => q.answers.includes(a));
-
+        const isCorrect = selectedAnswers.length === q.answers.length && selectedAnswers.every(a => q.answers.includes(a));
         const feedback = document.createElement("div");
         feedback.className = "feedback";
-
         if (isCorrect) {
             score += questionPoints[currentQuestionIndex];
             playApplause();
-            feedback.innerHTML = `✅ Bien joué (+${questionPoints[currentQuestionIndex]} point${questionPoints[currentQuestionIndex] > 1 ? 's' : ''})<br><strong>${q.answers.join(", ")}</strong><br>${q.explanation}`;
+            feedback.innerHTML = `✅ Bien joué (+${questionPoints[currentQuestionIndex]} pt)<br><strong>${q.answers.join(", ")}</strong><br>${q.explanation}`;
         } else {
             feedback.innerHTML = `❌ Pas tout à fait<br><strong>${q.answers.join(", ")}</strong><br>${q.explanation}`;
         }
-
-        scoreDisplay.textContent = `Score : ${score}`;
+        scoreDisplay.textContent = `Score : ${score}/20`;
         questionContainer.appendChild(feedback);
-
         const nextBtn = document.createElement("button");
         nextBtn.textContent = "Suivant";
         nextBtn.onclick = nextQuestion;
         questionContainer.appendChild(nextBtn);
     }
 
-    /* ==================================================
-       QUESTION SUIVANTE OU FIN
-    ================================================== */
-
     function nextQuestion() {
-        stopTimer(); // Arrêter le timer
-
+        stopTimer();
         currentQuestionIndex++;
-
         if (currentQuestionIndex >= questions.length) {
             endQuiz();
         } else {
@@ -388,57 +195,44 @@ window.onload = () => {
         }
     }
 
-    /* ==================================================
-       FIN DU QUIZ + CLASSEMENT
-    ================================================== */
-
     function endQuiz() {
-        stopTimer(); // Arrêter le timer
-
+        stopTimer();
         quizPage.style.display = "none";
         dashboardPage.style.display = "block";
-
         leaderboard.push({ name: username, score: score });
         leaderboard.sort((a, b) => b.score - a.score);
-
-        // Afficher le score final de l'utilisateur
-        document.getElementById("scoreText").textContent = `Votre score final : ${score}/10`;
-
+        localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+        document.getElementById("scoreText").textContent = `Votre score final : ${score}/20`;
         leaderboardBody.innerHTML = "";
-
         leaderboard.forEach((e, i) => {
             const row = document.createElement("tr");
             row.innerHTML = `<td>${i + 1}</td><td>${e.name}</td><td>${e.score}</td>`;
             leaderboardBody.appendChild(row);
         });
-
-        // Lancer confettis si le score est supérieur ou égal à 12 (plus que la moyenne)
         if (score >= 12) {
             launchConfetti();
         }
     }
 
-    /* ==================================================
-       RETOUR À L’ACCUEIL
-    ================================================== */
+    if (backHomeBtn) {
+        backHomeBtn.onclick = () => {
+            if (dashboardPage) {
+                dashboardPage.style.display = "none";
+            }
+            if (loginPage) {
+                loginPage.style.display = "block";
+            }
+        };
+    }
 
-    // je vérifie que le bouton "Retour accueil" existe avant de l'utiliser
-        if (backHomeBtn) {
-    
-            // quand je clique sur "Retour à l'accueil"
-            backHomeBtn.onclick = () => {
-    
-                console.log("[INFO] Bouton retour cliqué");
-    
-                // je cache le dashboard si il existe
-                if (dashboardPage) {
-                    dashboardPage.style.display = "none";
-                }
-    
-                // j'affiche la page de connexion si elle existe
-                if (loginPage) {
-                    loginPage.style.display = "block";
-                }
-            };
-        }
-    };
+    if (resetBtn) {
+        resetBtn.onclick = () => {
+            if (confirm("Êtes-vous sûr de vouloir réinitialiser le classement ?")) {
+                leaderboard = [];
+                localStorage.removeItem('leaderboard');
+                alert("Classement réinitialisé !");
+                location.reload();
+            }
+        };
+    }
+};
