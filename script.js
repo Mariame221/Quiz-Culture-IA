@@ -11,7 +11,7 @@ window.onload = () => {
     let currentQuestionIndex = 0;
     let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
     let selectedAnswers = [];
-    const questionPoints = [0.5, 0.5, 1, 0, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 0, 0];
+    const questionPoints = [0.5, 0.5, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 0, 0, 0, 0, 0];
     let timer;
     let timeLeft = 15;
 
@@ -103,7 +103,11 @@ window.onload = () => {
         {question:"Q3-L'IA peut être utilisée en entreprise pour :",options:["Automatiser des tâches","Structurer des processus","Remplacer toute décision humaine","Aider à la prise de décision"],answers:["Automatiser des tâches","Structurer des processus","Aider à la prise de décision"],explanation:"L'IA soutient et optimise le travail."},
         {question:"Q4 (ouverte)-Cite les usages professionnels que tu as de l'IA.",options:["(Réponse libre)"],answers:["(Réponse libre)"],explanation:"Question qualitative - pas notée."},
         {question:"Q5-Quel est un risque réel lié à l'IA au travail ?",options:["Dépendance excessive","Amélioration de la productivité","Perte de temps","Meilleure structuration"],answers:["Dépendance excessive"],explanation:"La dépendance est un risque réel."},
-        {question:"Q6-Associe les outils à leurs usages :",options:["ChatGPT → Rédaction","Canva IA → Création visuelle","DeepL → Traduction","Notion AI → Organisation","DALL·E → Images"],answers:["ChatGPT → Rédaction","Canva IA → Création visuelle","DeepL → Traduction","Notion AI → Organisation","DALL·E → Images"],explanation:"Chaque outil a son périmètre."},
+        {question:"Q6-Quel est l'usage principal de ChatGPT ?",options:["Rédaction/reformulation","Création visuelle","Traduction"],answers:["Rédaction/reformulation"],explanation:"ChatGPT est un modèle de langage, bon pour la rédaction."},
+        {question:"Q6b-Quel est l'usage principal de Canva IA ?",options:["Rédaction","Création visuelle","Traduction"],answers:["Création visuelle"],explanation:"Canva IA aide à créer des visuels."},
+        {question:"Q6c-Quel est l'usage principal de DeepL ?",options:["Rédaction","Création visuelle","Traduction"],answers:["Traduction"],explanation:"DeepL est spécialisé en traduction."},
+        {question:"Q6d-Quel est l'usage principal de Notion AI ?",options:["Rédaction","Organisation et synthèse","Traduction"],answers:["Organisation et synthèse"],explanation:"Notion AI aide à organiser et synthétiser."},
+        {question:"Q6e-Quel est l'usage principal de DALL·E/Midjourney ?",options:["Rédaction","Génération d'images","Traduction"],answers:["Génération d'images"],explanation:"DALL·E génère des images à partir de texte.",isOpenEnded:false},
         {question:"Q7-Exemples d'usages IA en entreprise ?",options:["Chatbots client","Jeux vidéo","Analyse prédictive","Création de contenu"],answers:["Chatbots client","Analyse prédictive","Création de contenu"],explanation:"Les usages professionnels incluent chatbots et analyse."},
         {question:"Q8-L'IA peut produire des erreurs ou des biais.",options:["Vrai","Faux"],answers:["Vrai"],explanation:"L'IA génère des réponses probables, pas des vérités."},
         {question:"Q9-Une réponse IA doit toujours être vérifiée.",options:["Vrai","Faux"],answers:["Vrai"],explanation:"La vérification humaine est indispensable."},
@@ -140,23 +144,39 @@ window.onload = () => {
         const title = document.createElement("h2");
         title.textContent = `${q.question}`;
         questionContainer.appendChild(title);
-        q.options.forEach(option => {
-            const label = document.createElement("label");
-            label.style.display = "block";
-            const checkbox = document.createElement("input");
-            checkbox.type = "checkbox";
-            checkbox.value = option;
-            checkbox.onchange = () => {
-                if (checkbox.checked) {
-                    selectedAnswers.push(option);
-                } else {
-                    selectedAnswers = selectedAnswers.filter(a => a !== option);
-                }
-            };
-            label.appendChild(checkbox);
-            label.append(" " + option);
-            questionContainer.appendChild(label);
-        });
+        
+        // Si c'est une question ouverte (Q4, Q19, Q20)
+        if (currentQuestionIndex === 3 || currentQuestionIndex === 18 || currentQuestionIndex === 19) {
+            const textarea = document.createElement("textarea");
+            textarea.placeholder = "Écrivez votre réponse ici...";
+            textarea.style.width = "100%";
+            textarea.style.height = "150px";
+            textarea.style.padding = "10px";
+            textarea.style.fontSize = "1rem";
+            textarea.style.borderRadius = "5px";
+            textarea.id = "openAnswer";
+            questionContainer.appendChild(textarea);
+        } else {
+            // Questions à choix multiples
+            q.options.forEach(option => {
+                const label = document.createElement("label");
+                label.style.display = "block";
+                const checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.value = option;
+                checkbox.onchange = () => {
+                    if (checkbox.checked) {
+                        selectedAnswers.push(option);
+                    } else {
+                        selectedAnswers = selectedAnswers.filter(a => a !== option);
+                    }
+                };
+                label.appendChild(checkbox);
+                label.append(" " + option);
+                questionContainer.appendChild(label);
+            });
+        }
+        
         const validateBtn = document.createElement("button");
         validateBtn.textContent = "Valider";
         validateBtn.onclick = validateAnswer;
@@ -167,7 +187,18 @@ window.onload = () => {
     function validateAnswer() {
         stopTimer();
         const q = questions[currentQuestionIndex];
-        const isCorrect = selectedAnswers.length === q.answers.length && selectedAnswers.every(a => q.answers.includes(a));
+        let isCorrect = false;
+        
+        // Pour les questions ouvertes
+        if (currentQuestionIndex === 3 || currentQuestionIndex === 18 || currentQuestionIndex === 19) {
+            const textarea = document.getElementById("openAnswer");
+            isCorrect = textarea.value.trim().length > 0;
+            selectedAnswers = [textarea.value.trim() || "(Pas de réponse)"];
+        } else {
+            // Questions à choix
+            isCorrect = selectedAnswers.length === q.answers.length && selectedAnswers.every(a => q.answers.includes(a));
+        }
+        
         const feedback = document.createElement("div");
         feedback.className = "feedback";
         if (isCorrect) {
