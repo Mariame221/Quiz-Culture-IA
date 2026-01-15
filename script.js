@@ -34,7 +34,9 @@ window.onload = () => {
     }
 
     function startTimer() {
-        timeLeft = 15;
+        // 60 secondes pour les questions ouvertes, 15 pour les autres
+        const isOpenEnded = (currentQuestionIndex === 3 || currentQuestionIndex === 18 || currentQuestionIndex === 19);
+        timeLeft = isOpenEnded ? 60 : 15;
         updateTimerDisplay();
         timer = setInterval(() => {
             timeLeft--;
