@@ -11,7 +11,7 @@ window.onload = () => {
     let currentQuestionIndex = 0;
     let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
     let selectedAnswers = [];
-    const questionPoints = [0.5, 0.5, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 0, 0, 0, 0, 0];
+    const questionPoints = [0.5, 0.5, 1, 0, 1, 0.4, 0.4, 0.4, 0.4, 0.4, 1, 1, 1, 1, 1, 1, 2, 2, 2, 0, 0, 0, 0, 0];
     let timer;
     let timeLeft = 15;
 
