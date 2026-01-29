@@ -1,96 +1,161 @@
-/* POLICE ET FOND */
-body{
-    font-family:'Orbitron', sans-serif;
-    background:#0d0d0d;
-    color:#fff;
-    margin:0;
-    padding:0;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
-    font-size:1.2rem; /* taille de base augmentée */
+/* Fond avec robot */
+body {
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    overflow: hidden;
+
+    background-image: url("robot-ia.png");
+    background-repeat: no-repeat;
+    background-position: right center;
+   
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
 }
 
-/* CONTAINER CENTRAL */
-.container{
-    width:95%;
-    max-width:900px;
-    text-align:center;
+/* Positionner le bloc login en haut à gauche */
+.login-top-left {
+    
+    top: 40px;
+    left: 40px;
+    width: 40%;
+    max-width: 500px;
+    text-align: left;
 }
 
-/* TITRES */
-h1{
-    font-size:2.5rem; /* augmenté */
-    margin-bottom:20px;
-}
-h2{
-    font-size:2rem; /* augmenté */
-    margin-bottom:15px;
+/* Ajuste le container pour ne pas recentrer le login */
+#loginPage {
+    display: block;
 }
 
-/* INPUTS, BUTTONS, TEXTAREA */
-input, button, textarea{
-    font-family:'Orbitron', sans-serif;
-    font-size:1.5rem; /* augmenté pour meilleure visibilité */
-    padding:12px;
-    margin:10px 0;
-    border-radius:10px;
-    border:none;
+/* Ombre pour lisibilité */
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(to right, rgba(0,0,0,0.85), rgba(0,0,0,0.4));
+    pointer-events: none;
 }
 
-/* BUTTON HOVER */
-button{
-    background:#00f0ff;
-    color:#000;
-    font-weight:bold;
-    cursor:pointer;
-    transition:0.3s;
+/* Bloc principal */
+.container {
+    position: relative;
+    z-index: 1;
+    width: 50%;
+    max-width: 700px;
+    margin-left: 5%;
+    color: #fff;
+    text-align: left;
 }
 
-button:hover{
-    background:#00c5e0;
+/* Titres */
+h1, h2 {
+    margin-bottom: 15px;
+    font-weight: 700;
 }
 
-/* QUESTION BOX */
-.question{
-    background:#111;
-    padding:25px;
-    margin:20px 0;
-    border-radius:15px;
-    font-size:1.4rem; /* augmenté */
-}
-}
-
-/* FEEDBACK */
-.feedback{
-    margin-top:15px;
-    font-weight:bold;
-    font-size:1.2rem;
+/* Inputs */
+input, textarea {
+    font-size: 1rem;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 8px;
+    border: none;
+    width: 100%;
+    box-sizing: border-box;
 }
 
-/* CONFETTI CANVAS */
-#confettiCanvas{
-    position:absolute;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    pointer-events:none;
+/* Boutons */
+button {
+    background: #00f0ff;
+    color: #000;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 1rem;
+    border: none;
+    margin-right: 8px;
+    margin-top: 10px;
 }
 
-/* TABLEAU LEADERBOARD */
-table{
-    width:100%;
-    border-collapse:collapse;
-    margin-top:15px;
+button:hover {
+    background: #00c5e0;
+    transform: translateY(-1px);
 }
 
-th, td{
-    border:1px solid #00f0ff;
-    padding:10px;
-    font-size:1.1rem;
+/* Quiz header */
+.quiz-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
 }
-th{
-    background:#111;
+
+/* Question box */
+#questionContainer {
+    background: rgba(0, 0, 0, 0.55);
+    padding: 20px;
+    border-radius: 12px;
+}
+
+/* Feedback */
+.feedback {
+    margin-top: 15px;
+    font-weight: bold;
+}
+
+/* Tableau */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    background: rgba(0, 0, 0, 0.55);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+th, td {
+    border: 1px solid #00f0ff;
+    padding: 8px;
+}
+
+th {
+    background: rgba(0, 240, 255, 0.1);
+}
+
+/* Confetti */
+#confettiCanvas {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+}
+
+/* Amélioration des cases à cocher */
+#questionContainer label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 10px 0;
+    font-size: 1.1rem;
+    cursor: pointer;
+}
+
+#questionContainer label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 10px 0;
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 6px; /* ← ajouté ici */
+    border-radius: 8px; /* ← ajouté ici aussi */
+}
+
+/* Effet au survol */
+#questionContainer label:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 6px;
 }

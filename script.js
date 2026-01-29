@@ -1,17 +1,18 @@
-/****************************************************
- * QUIZ IA – 20 QUESTIONS – USAGE AU TRAVAIL
- * Notation : 20 points maximum
- ****************************************************/
-
 window.onload = () => {
-    console.log("[INFO] Script chargé - 20 questions");
 
     let username = "";
     let score = 0;
     let currentQuestionIndex = 0;
     let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
     let selectedAnswers = [];
-    const questionPoints = [0.5, 0.5, 1, 0, 1, 0.4, 0.4, 0.4, 0.4, 0.4, 1, 1, 1, 1, 1, 1, 2, 2, 2, 0, 0, 0, 0, 0];
+    let userAnswers = [];
+
+    const OPEN_QUESTIONS = [3, 18, 19]; // 1 minute
+    const questionPoints = [
+        0.5,0.5,1,0,1,0.4,0.4,0.4,0.4,0.4,
+        1,1,1,1,1,1,2,2,2,0
+    ];
+
     let timer;
     let timeLeft = 15;
 
@@ -21,23 +22,29 @@ window.onload = () => {
     const startBtn = document.getElementById("startBtn");
     const backHomeBtn = document.getElementById("backHomeBtn");
     const resetBtn = document.getElementById("resetBtn");
+    const exportJsonBtn = document.getElementById("exportJsonBtn");
     const questionContainer = document.getElementById("questionContainer");
     const scoreDisplay = document.getElementById("scoreDisplay");
     const leaderboardBody = document.getElementById("leaderboardBody");
 
+    const confettiCanvas = document.getElementById("confettiCanvas");
+    const ctx = confettiCanvas.getContext("2d");
+    confettiCanvas.width = window.innerWidth;
+    confettiCanvas.height = window.innerHeight;
+    let confettis = [];
+
     function playApplause() {
         const audio = document.getElementById("applauseAudio");
-        if (audio) {
-            audio.currentTime = 0;
-            audio.play().catch(e => console.log("Erreur audio:", e));
-        }
+        if (!audio) return;
+        audio.currentTime = 0;
+        audio.play().catch(() => {});
     }
 
     function startTimer() {
-        // 60 secondes pour les questions ouvertes, 15 pour les autres
-        const isOpenEnded = (currentQuestionIndex === 3 || currentQuestionIndex === 18 || currentQuestionIndex === 19);
-        timeLeft = isOpenEnded ? 60 : 15;
+        const isOpen = OPEN_QUESTIONS.includes(currentQuestionIndex);
+        timeLeft = isOpen ? 60 : 15;
         updateTimerDisplay();
+
         timer = setInterval(() => {
             timeLeft--;
             updateTimerDisplay();
@@ -51,30 +58,16 @@ window.onload = () => {
     function updateTimerDisplay() {
         const timerDisplay = document.getElementById("timerDisplay");
         timerDisplay.textContent = `⏱ Temps restant : ${timeLeft}s`;
-        if (timeLeft <= 7) {
-            timerDisplay.style.color = 'red';
-        } else {
-            timerDisplay.style.color = 'black';
-        }
+        timerDisplay.style.color = timeLeft <= 7 ? "red" : "white";
     }
 
     function stopTimer() {
-        if (timer) {
-            clearInterval(timer);
-        }
+        if (timer) clearInterval(timer);
     }
-
-    const confettiCanvas = document.createElement("canvas");
-    confettiCanvas.id = "confettiCanvas";
-    document.body.appendChild(confettiCanvas);
-    const ctx = confettiCanvas.getContext("2d");
-    confettiCanvas.width = window.innerWidth;
-    confettiCanvas.height = window.innerHeight;
-    let confettis = [];
 
     function launchConfetti() {
         confettis = [];
-        for (let i = 0; i < 120; i++) {
+        for (let i = 0; i < 150; i++) {
             confettis.push({
                 x: Math.random() * confettiCanvas.width,
                 y: Math.random() * confettiCanvas.height,
@@ -98,7 +91,6 @@ window.onload = () => {
             requestAnimationFrame(animateConfetti);
         }
     }
-
     const questions = [
         {question:"Q1-Un outil d'IA générative permet de :",options:["Produire du texte ou des images à partir d'une consigne","Stocker des documents papier","Remplacer le jugement humain"],answers:["Produire du texte ou des images à partir d'une consigne"],explanation:"L'IA générative crée du contenu à partir d'instructions."},
         {question:"Q2-L'IA doit être considérée avant tout comme :",options:["Un remplaçant","Un assistant d'aide à la réflexion et à la production","Un outil de décision autonome"],answers:["Un assistant d'aide à la réflexion et à la production"],explanation:"L'IA assiste, mais la décision reste humaine."},
@@ -109,7 +101,7 @@ window.onload = () => {
         {question:"Q6b-Quel est l'usage principal de Canva IA ?",options:["Rédaction","Création visuelle","Traduction"],answers:["Création visuelle"],explanation:"Canva IA aide à créer des visuels."},
         {question:"Q6c-Quel est l'usage principal de DeepL ?",options:["Rédaction","Création visuelle","Traduction"],answers:["Traduction"],explanation:"DeepL est spécialisé en traduction."},
         {question:"Q6d-Quel est l'usage principal de Notion AI ?",options:["Rédaction","Organisation et synthèse","Traduction"],answers:["Organisation et synthèse"],explanation:"Notion AI aide à organiser et synthétiser."},
-        {question:"Q6e-Quel est l'usage principal de DALL·E/Midjourney ?",options:["Rédaction","Génération d'images","Traduction"],answers:["Génération d'images"],explanation:"DALL·E génère des images à partir de texte.",isOpenEnded:false},
+        {question:"Q6e-Quel est l'usage principal de DALL·E/Midjourney ?",options:["Rédaction","Génération d'images","Traduction"],answers:["Génération d'images"],explanation:"DALL·E génère des images à partir de texte."},
         {question:"Q7-Exemples d'usages IA en entreprise ?",options:["Chatbots client","Jeux vidéo","Analyse prédictive","Création de contenu"],answers:["Chatbots client","Analyse prédictive","Création de contenu"],explanation:"Les usages professionnels incluent chatbots et analyse."},
         {question:"Q8-L'IA peut produire des erreurs ou des biais.",options:["Vrai","Faux"],answers:["Vrai"],explanation:"L'IA génère des réponses probables, pas des vérités."},
         {question:"Q9-Une réponse IA doit toujours être vérifiée.",options:["Vrai","Faux"],answers:["Vrai"],explanation:"La vérification humaine est indispensable."},
@@ -126,16 +118,20 @@ window.onload = () => {
         {question:"Q20 (ouverte)-Comment l'IA t'aide dans tes fonctions ?",options:["(Réponse libre)"],answers:["(Réponse libre)"],explanation:"Question qualitative - pas notée."}
     ];
 
+    // Démarrage du quiz
     startBtn.onclick = () => {
         username = document.getElementById("username").value.trim();
         if (!username) {
             alert("Merci d'entrer ton nom");
             return;
         }
-        loginPage.style.display = "none";
-        quizPage.style.display = "block";
         score = 0;
         currentQuestionIndex = 0;
+        userAnswers = [];
+
+        loginPage.style.display = "none";
+        quizPage.style.display = "block";
+
         showQuestion();
     };
 
@@ -143,29 +139,26 @@ window.onload = () => {
         questionContainer.innerHTML = "";
         selectedAnswers = [];
         const q = questions[currentQuestionIndex];
+
         const title = document.createElement("h2");
-        title.textContent = `${q.question}`;
+        title.textContent = q.question;
         questionContainer.appendChild(title);
-        
-        // Si c'est une question ouverte (Q4, Q19, Q20)
-        if (currentQuestionIndex === 3 || currentQuestionIndex === 18 || currentQuestionIndex === 19) {
+
+        if (OPEN_QUESTIONS.includes(currentQuestionIndex)) {
             const textarea = document.createElement("textarea");
             textarea.placeholder = "Écrivez votre réponse ici...";
-            textarea.style.width = "100%";
-            textarea.style.height = "150px";
-            textarea.style.padding = "10px";
-            textarea.style.fontSize = "1rem";
-            textarea.style.borderRadius = "5px";
             textarea.id = "openAnswer";
+            textarea.style.height = "140px";
             questionContainer.appendChild(textarea);
         } else {
-            // Questions à choix multiples
             q.options.forEach(option => {
                 const label = document.createElement("label");
                 label.style.display = "block";
+
                 const checkbox = document.createElement("input");
                 checkbox.type = "checkbox";
                 checkbox.value = option;
+
                 checkbox.onchange = () => {
                     if (checkbox.checked) {
                         selectedAnswers.push(option);
@@ -173,16 +166,18 @@ window.onload = () => {
                         selectedAnswers = selectedAnswers.filter(a => a !== option);
                     }
                 };
+
                 label.appendChild(checkbox);
                 label.append(" " + option);
                 questionContainer.appendChild(label);
             });
         }
-        
+
         const validateBtn = document.createElement("button");
         validateBtn.textContent = "Valider";
         validateBtn.onclick = validateAnswer;
         questionContainer.appendChild(validateBtn);
+
         startTimer();
     }
 
@@ -190,19 +185,30 @@ window.onload = () => {
         stopTimer();
         const q = questions[currentQuestionIndex];
         let isCorrect = false;
-        
-        // Pour les questions ouvertes
-        if (currentQuestionIndex === 3 || currentQuestionIndex === 18 || currentQuestionIndex === 19) {
+
+        if (OPEN_QUESTIONS.includes(currentQuestionIndex)) {
             const textarea = document.getElementById("openAnswer");
-            isCorrect = textarea.value.trim().length > 0;
-            selectedAnswers = [textarea.value.trim() || "(Pas de réponse)"];
+            const txt = (textarea?.value || "").trim();
+            selectedAnswers = [txt || "(Pas de réponse)"];
+            isCorrect = txt.length > 0; // juste "réponse donnée"
         } else {
-            // Questions à choix
-            isCorrect = selectedAnswers.length === q.answers.length && selectedAnswers.every(a => q.answers.includes(a));
+            isCorrect =
+                selectedAnswers.length === q.answers.length &&
+                selectedAnswers.every(a => q.answers.includes(a));
         }
-        
+
+        userAnswers.push({
+            question: q.question,
+            selected: [...selectedAnswers],
+            correctAnswers: q.answers,
+            isCorrect: isCorrect,
+            points: isCorrect ? questionPoints[currentQuestionIndex] : 0,
+            date: new Date().toLocaleString()
+        });
+
         const feedback = document.createElement("div");
         feedback.className = "feedback";
+
         if (isCorrect) {
             score += questionPoints[currentQuestionIndex];
             playApplause();
@@ -210,8 +216,10 @@ window.onload = () => {
         } else {
             feedback.innerHTML = `❌ Pas tout à fait<br><strong>${q.answers.join(", ")}</strong><br>${q.explanation}`;
         }
+
         scoreDisplay.textContent = `Score : ${score}/20`;
         questionContainer.appendChild(feedback);
+
         const nextBtn = document.createElement("button");
         nextBtn.textContent = "Suivant";
         nextBtn.onclick = nextQuestion;
@@ -232,29 +240,34 @@ window.onload = () => {
         stopTimer();
         quizPage.style.display = "none";
         dashboardPage.style.display = "block";
-        leaderboard.push({ name: username, score: score });
+
+        leaderboard.push({
+            name: username,
+            score: score,
+            answers: userAnswers
+        });
+
         leaderboard.sort((a, b) => b.score - a.score);
-        localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+        localStorage.setItem("leaderboard", JSON.stringify(leaderboard));
+
         document.getElementById("scoreText").textContent = `Votre score final : ${score}/20`;
+
         leaderboardBody.innerHTML = "";
-        leaderboard.forEach((e, i) => {
+        leaderboard.slice(0, 3).forEach((e, i) => {
             const row = document.createElement("tr");
             row.innerHTML = `<td>${i + 1}</td><td>${e.name}</td><td>${e.score}</td>`;
             leaderboardBody.appendChild(row);
         });
-        if (score >= 12) {
+
+        if (leaderboard.length > 0) {
             launchConfetti();
         }
     }
 
     if (backHomeBtn) {
         backHomeBtn.onclick = () => {
-            if (dashboardPage) {
-                dashboardPage.style.display = "none";
-            }
-            if (loginPage) {
-                loginPage.style.display = "block";
-            }
+            dashboardPage.style.display = "none";
+            loginPage.style.display = "block";
         };
     }
 
@@ -262,10 +275,22 @@ window.onload = () => {
         resetBtn.onclick = () => {
             if (confirm("Êtes-vous sûr de vouloir réinitialiser le classement ?")) {
                 leaderboard = [];
-                localStorage.removeItem('leaderboard');
-                alert("Classement réinitialisé !");
+                localStorage.removeItem("leaderboard");
                 location.reload();
             }
+        };
+    }
+
+    if (exportJsonBtn) {
+        exportJsonBtn.onclick = () => {
+            const data = JSON.stringify(leaderboard, null, 4);
+            const blob = new Blob([data], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "resultats_quiz_IA.json";
+            a.click();
+            URL.revokeObjectURL(url);
         };
     }
 };

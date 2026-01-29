@@ -4,54 +4,45 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz Culture IA - INSERSITE</title>
-
-    <!-- Police lisible (meilleure que Orbitron pour les yeux) -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-
-    <!-- CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
+    <div class="overlay"></div>
+
     <div class="container">
 
-        <!-- ================= PAGE LOGIN ================= -->
-        <div id="loginPage">
-            <h1>Quiz Culture IA insersite</h1>
-            <p>L’IA est un outil d’aide destiné à améliorer la productivité et la qualité du travail.</p>
-            <p>Ce test évalue les pratiques et la posture professionnelle liées à l’usage de l’IA dans votre travail.</p>
-            <p><strong>Note :</strong> Vous avez 15 secondes par question. Le timer devient rouge à 7 secondes restantes.</p>
+        <!-- PAGE LOGIN -->
+    <div id="loginPage" class="login-top-left">
+        <h1>Quiz Culture IA – Insersite</h1>
+        <p>L’IA est un outil d’aide destiné à améliorer la productivité et la qualité du travail.</p>
+        <p>Ce test évalue les pratiques et la posture professionnelle liées à l’usage de l’IA dans votre travail.</p>
+        <p><strong>Note :</strong> 15 secondes par question, sauf les questions ouvertes (1 minute).</p>
 
-            <input 
-                type="text" 
-                id="username" 
-                placeholder="Nom et prénom"
-            >
+        <input type="text" id="username" placeholder="Nom et prénom">
+        <button id="startBtn">🚀 Commencer le quiz</button>
+    </div>
 
-            <button id="startBtn">🚀 Commencer le quiz</button>
-        </div>
+            
 
-        <!-- ================= PAGE QUIZ ================= -->
+        <!-- PAGE QUIZ -->
         <div id="quizPage" style="display:none;">
-
             <div class="quiz-header">
-                <div id="timerDisplay">⏱ Temps restant : 30s</div>
+                <div id="timerDisplay">⏱ Temps restant : 15s</div>
                 <div id="scoreDisplay">Score : 0</div>
             </div>
 
             <div id="questionContainer"></div>
-
-            <!-- bouton valider / suivant injecté par JS -->
         </div>
 
-        <!-- ================= PAGE SCORE ================= -->
+        <!-- PAGE SCORE -->
         <div id="dashboardPage" style="display:none;">
             <h2>Résultat du quiz</h2>
-
             <p id="scoreText"></p>
 
-            <h3>Classement des employés</h3>
+            <h3>Top 3 employés</h3>
             <table id="leaderboardTable">
                 <thead>
                     <tr>
@@ -60,24 +51,22 @@
                         <th>Score</th>
                     </tr>
                 </thead>
-                <tbody id="leaderboardBody">
-                    <!-- rempli en JS -->
-                </tbody>
+                <tbody id="leaderboardBody"></tbody>
             </table>
 
+            <button id="exportJsonBtn">📄 Exporter les résultats en JSON</button>
             <button id="resetBtn">🔄 Réinitialiser le classement</button>
             <button id="backHomeBtn">🏠 Retour à l’accueil</button>
         </div>
 
     </div>
 
-    <!-- Audio pour applaudissements -->
     <audio id="applauseAudio" preload="auto">
         <source src="applause.mp3" type="audio/mpeg">
     </audio>
 
-    <!-- JS TOUJOURS EN DERNIER -->
-    <script src="script.js"></script>
+    <canvas id="confettiCanvas"></canvas>
 
+    <script src="script.js"></script>
 </body>
 </html>
